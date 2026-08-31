@@ -64,7 +64,7 @@ export default function BookDetailsPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-6 p-6">
+    <div className="mx-auto flex max-w-4xl flex-col gap-6">
       <Button variant="ghost" className="w-fit" onClick={() => router.back()}>
         ← Back
       </Button>
