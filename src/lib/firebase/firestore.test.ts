@@ -21,6 +21,7 @@ describe('fetchBooks', () => {
     (fs.getDocs as any).mockResolvedValueOnce({
       docs: [
         {
+          id: 'doc-1',
           data: () => ({
             ISBN: '123',
             title: 'Dune',
@@ -33,6 +34,7 @@ describe('fetchBooks', () => {
 
     const books = await fetchBooks('user-1');
     expect(books).toHaveLength(1);
+    expect(books[0].id).toBe('doc-1');
     expect(books[0].title).toBe('Dune');
     expect(books[0].ISBN).toBe('123');
   });

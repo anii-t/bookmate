@@ -75,8 +75,8 @@ export default function AddBookPage() {
   async function handleAdd() {
     if (!result) return;
     try {
-      await addBook(result);
-      addBookLocal(result);
+      const id = await addBook(result);
+      addBookLocal({ ...result, id });
       router.replace('/library');
     } catch (e) {
       console.error('Failed to add book', e);

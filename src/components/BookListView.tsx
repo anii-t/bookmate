@@ -48,7 +48,7 @@ export default function BookListView({
       {view === 'grid' ? (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {books.map((book, i) => (
-            <Link key={`${book.ISBN}-${book.title}-${i}`} href={`/books/${encodeURIComponent(book.title)}`}>
+            <Link key={book.id ?? `${book.ISBN}-${book.title}-${i}`} href={`/books/${book.id}`}>
               <BookCard book={book} layout="grid" />
             </Link>
           ))}
@@ -67,12 +67,12 @@ export default function BookListView({
             <tbody>
               {books.map((book, i) => (
                 <tr
-                  key={`${book.ISBN}-${book.title}-${i}`}
+                  key={book.id ?? `${book.ISBN}-${book.title}-${i}`}
                   className={cn(
                     'cursor-pointer border-t border-border transition-colors hover:bg-muted/40',
                     i % 2 === 1 && 'bg-muted/10'
                   )}
-                  onClick={() => router.push(`/books/${encodeURIComponent(book.title)}`)}
+                  onClick={() => router.push(`/books/${book.id}`)}
                 >
                   <td className="px-4 py-2.5 font-medium">{book.title || 'Untitled'}</td>
                   <td className="px-4 py-2.5 text-muted-foreground">{book.author || 'Unknown author'}</td>

@@ -3,7 +3,9 @@ import { BorrowingModel, createDefaultBorrowing } from './BorrowingModel';
 import { RatingModel, createDefaultRating } from './RatingModel';
 
 export interface BookModel {
-  id?: number;
+  /** Firestore document ID. Absent only for ephemeral, not-yet-persisted
+   * books (e.g. a search result or recommendation before it's been added). */
+  id?: string;
   ISBN: string;
   coverUrl: string;
   author: string;
@@ -31,11 +33,10 @@ export function createDefaultBook(ownerId: string = ''): BookModel {
   };
 }
 
-// NOTE (known, accepted limitation): identity is title-only (case-insensitive),
-// ported verbatim from the mobile app's spec-mandated behavior. Two distinct
-// books that happen to share a title will collide here (and in routing that
-// keys off title). Do not silently "fix" by changing semantics — see review
-// finding for details.
+// Title-based comparison, used only for de-duplicating ephemeral,
+// not-yet-persisted books (e.g. recommendations) against the current
+// library — those don't have a Firestore `id` yet. Persisted books are
+// identified by `id` everywhere else (store updates/removal, routing).
 export function booksEqual(a: BookModel, b: BookModel): boolean {
   return a.title.toLowerCase() === b.title.toLowerCase();
 }

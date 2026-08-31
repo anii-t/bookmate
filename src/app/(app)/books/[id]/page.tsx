@@ -26,15 +26,11 @@ const RATING_LABELS: { key: keyof RatingModel; label: string }[] = [
 export default function BookDetailsPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
-  const titleParam = decodeURIComponent(params.id);
   const books = useBookStore((s) => s.books);
   const updateBookLocal = useBookStore((s) => s.updateBookLocal);
   const removeBookLocal = useBookStore((s) => s.removeBookLocal);
 
-  const book = useMemo(
-    () => books.find((b) => b.title.toLowerCase() === titleParam.toLowerCase()),
-    [books, titleParam]
-  );
+  const book = useMemo(() => books.find((b) => b.id === params.id), [books, params.id]);
   const [saving, setSaving] = useState(false);
 
   if (!book) {

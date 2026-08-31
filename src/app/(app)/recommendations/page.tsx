@@ -52,8 +52,8 @@ export default function RecommendationsPage() {
     if (!user) return;
     const toAdd = { ...book, ownerId: user.id, listType };
     try {
-      await addBook(toAdd);
-      addBookLocal(toAdd);
+      const id = await addBook(toAdd);
+      addBookLocal({ ...toAdd, id });
       setRecommendations((prev) => prev.filter((b) => b !== book));
       toast.add({
         title: listType === ListType.WISHLIST ? 'Added to wishlist' : 'Added to library',

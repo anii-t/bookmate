@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { BookModel, booksEqual } from '../models/BookModel';
+import { BookModel } from '../models/BookModel';
 import { fetchBooks } from '../firebase/firestore';
 
 interface BookState {
@@ -26,14 +26,13 @@ export const useBookStore = create<BookState>((set, get) => ({
     }
   },
   addBookLocal: (book) => set({ books: [...get().books, book] }),
-  // NOTE: booksEqual (and therefore update/remove below) matches by title
-  // only. Duplicate titles are a known, accepted limitation inherited from
-  // the mobile app's spec-mandated identity semantics.
+  // Matched by Firestore document id — callers must pass a book that already
+  // has one (i.e. after `addBook`/`fetchBooks`, never a pre-persist object).
   updateBookLocal: (book) =>
     set({
-      books: get().books.map((b) => (booksEqual(b, book) ? book : b)),
+      books: get().books.map((b) => (b.id && b.id === book.id ? book : b)),
     }),
   removeBookLocal: (book) =>
-    set({ books: get().books.filter((b) => !booksEqual(b, book)) }),
+    set({ books: get().books.filter((b) => !(b.id && b.id === book.id)) }),
   clear: () => set({ books: [] }),
 }));

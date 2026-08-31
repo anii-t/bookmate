@@ -9,7 +9,6 @@ import {
   where,
   writeBatch,
 } from 'firebase/firestore';
-import type { QueryDocumentSnapshot, QuerySnapshot } from 'firebase/firestore';
 import { db } from './config';
 import { BookModel } from '../models/BookModel';
 import { UserModel } from '../models/UserModel';
@@ -37,8 +36,9 @@ function bookToFirestore(book: BookModel): Record<string, any> {
   };
 }
 
-function firestoreToBook(data: Record<string, any>): BookModel {
+function firestoreToBook(id: string, data: Record<string, any>): BookModel {
   return {
+    id,
     ISBN: data.ISBN ?? '',
     coverUrl: data.coverUrl ?? '',
     author: data.author ?? '',
@@ -71,90 +71,32 @@ export async function deleteUser(user: UserModel): Promise<void> {
   await deleteDoc(doc(db, 'users', user.id));
 }
 
-export async function addBook(book: BookModel): Promise<void> {
-  await addDoc(collection(db, 'books'), bookToFirestore(book));
-}
-
-function pickBookDoc(
-  snapshot: QuerySnapshot,
-  book: BookModel
-): QueryDocumentSnapshot | null {
-  if (snapshot.empty) return null;
-  if (snapshot.docs.length === 1) return snapshot.docs[0];
-  if (book.author?.trim()) {
-    const want = book.author.trim().toLowerCase();
-    const byAuthor = snapshot.docs.find(
-      (d) => (d.data().author ?? '').trim().toLowerCase() === want
-    );
-    if (byAuthor) return byAuthor;
-  }
-  return snapshot.docs[0];
+/** Creates a new book document and returns its Firestore-assigned ID. */
+export async function addBook(book: BookModel): Promise<string> {
+  const ref = await addDoc(collection(db, 'books'), bookToFirestore(book));
+  return ref.id;
 }
 
 export async function updateBook(book: BookModel): Promise<void> {
-  let snapshot: QuerySnapshot | undefined;
-
-  if (book.ISBN) {
-    snapshot = await getDocs(
-      query(
-        collection(db, 'books'),
-        where('ownerId', '==', book.ownerId),
-        where('ISBN', '==', book.ISBN)
-      )
-    );
-  }
-
-  if (!snapshot || snapshot.empty) {
-    snapshot = await getDocs(
-      query(
-        collection(db, 'books'),
-        where('ownerId', '==', book.ownerId),
-        where('title', '==', book.title)
-      )
-    );
-  }
-
-  const chosen = pickBookDoc(snapshot, book);
-  if (!chosen) {
-    console.warn(
-      'Firestore updateBook: no document matched (ISBN/title). Cloud copy will stay stale until fixed.'
-    );
+  if (!book.id) {
+    console.warn('Firestore updateBook: book has no id, cannot update.');
     return;
   }
-
-  await setDoc(doc(db, 'books', chosen.id), bookToFirestore(book));
+  await setDoc(doc(db, 'books', book.id), bookToFirestore(book));
 }
 
 export async function fetchBooks(ownerId: string): Promise<BookModel[]> {
   const q = query(collection(db, 'books'), where('ownerId', '==', ownerId));
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((d) => firestoreToBook(d.data()));
+  return snapshot.docs.map((d) => firestoreToBook(d.id, d.data()));
 }
 
 export async function deleteBook(book: BookModel): Promise<void> {
-  let snapshot;
-
-  if (book.ISBN) {
-    const q = query(
-      collection(db, 'books'),
-      where('ownerId', '==', book.ownerId),
-      where('ISBN', '==', book.ISBN)
-    );
-    snapshot = await getDocs(q);
+  if (!book.id) {
+    console.warn('Firestore deleteBook: book has no id, cannot delete.');
+    return;
   }
-
-  if (!snapshot || snapshot.empty) {
-    const q = query(
-      collection(db, 'books'),
-      where('ownerId', '==', book.ownerId),
-      where('title', '==', book.title)
-    );
-    snapshot = await getDocs(q);
-  }
-
-  if (!snapshot.empty) {
-    await deleteDoc(doc(db, 'books', snapshot.docs[0].id));
-  }
+  await deleteDoc(doc(db, 'books', book.id));
 }
 
 export async function deleteAllBooks(ownerId: string): Promise<void> {
