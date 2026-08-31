@@ -10,7 +10,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { BookModel } from '@/lib/models/BookModel';
+import { RatingModel } from '@/lib/models/RatingModel';
 import { toast } from '@/components/ui/toast';
+import StarRating from '@/components/StarRating';
+
+const RATING_LABELS: { key: keyof RatingModel; label: string }[] = [
+  { key: 'emotionalImpact', label: 'Emotional impact' },
+  { key: 'character', label: 'Characters' },
+  { key: 'pacing', label: 'Pacing' },
+  { key: 'storyline', label: 'Storyline' },
+  { key: 'writingStyle', label: 'Writing style' },
+  { key: 'overallRating', label: 'Overall rating' },
+];
 
 export default function BookDetailsPage() {
   const router = useRouter();
@@ -82,32 +93,30 @@ export default function BookDetailsPage() {
             <p className="text-xs text-muted-foreground">ISBN: {book.ISBN || '—'}</p>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div>
-              <Label>Reading status</Label>
-              <Select value={book.readingStatus} onValueChange={(v) => save({ readingStatus: v as ReadingStatus })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {ALL_READING_STATUSES.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div>
+            <Label>Reading status</Label>
+            <Select value={book.readingStatus} onValueChange={(v) => save({ readingStatus: v as ReadingStatus })}>
+              <SelectTrigger className="w-fit min-w-48"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {ALL_READING_STATUSES.map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            <div>
-              <Label>Overall rating (0–5)</Label>
-              <Input
-                type="number"
-                min={0}
-                max={5}
-                step={1}
-                defaultValue={book.rating.overallRating}
-                onBlur={(e) => {
-                  const clamped = Math.min(5, Math.max(0, Number(e.target.value)));
-                  save({ rating: { ...book.rating, overallRating: clamped } });
-                }}
-              />
+          <div>
+            <Label className="mb-2 block">Ratings</Label>
+            <div className="flex flex-col gap-2 rounded-lg border border-border p-4">
+              {RATING_LABELS.map(({ key, label }) => (
+                <div key={key} className="flex items-center justify-between gap-4">
+                  <span className="text-sm text-muted-foreground">{label}</span>
+                  <StarRating
+                    value={book.rating[key]}
+                    onChange={(value) => save({ rating: { ...book.rating, [key]: value } })}
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
