@@ -75,42 +75,87 @@ export default function BookDetailsPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-4xl flex-col gap-6">
+    <div className="mx-auto max-w-5xl">
       <Button variant="ghost" className="w-fit" onClick={() => router.back()}>
         ← Back
       </Button>
-      <div className="flex flex-col gap-8 sm:flex-row">
-        <div className="h-64 w-44 shrink-0 overflow-hidden rounded bg-muted">
-          {book.coverUrl && (
+
+      <div className="mt-6 flex flex-col gap-10 lg:flex-row">
+        <div className="h-96 w-64 shrink-0 overflow-hidden rounded-xl bg-muted shadow-sm">
+          {book.coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={book.coverUrl} alt={book.title} className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
+              No cover
+            </div>
           )}
         </div>
-        <div className="flex flex-1 flex-col gap-6">
+
+        <div className="flex max-w-xl flex-1 flex-col gap-8">
           <div>
-            <h1 className="text-2xl font-bold">{book.title}</h1>
-            <p className="text-muted-foreground">{book.author}</p>
-            <p className="text-xs text-muted-foreground">ISBN: {book.ISBN || '—'}</p>
+            <h1 className="text-3xl font-bold">{book.title}</h1>
+            <p className="mt-1 text-lg text-muted-foreground">{book.author}</p>
+            <p className="mt-1 text-xs text-muted-foreground">ISBN: {book.ISBN || '—'}</p>
           </div>
 
-          <div>
-            <Label>Reading status</Label>
-            <Select value={book.readingStatus} onValueChange={(v) => save({ readingStatus: v as ReadingStatus })}>
-              <SelectTrigger className="w-fit min-w-48"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {ALL_READING_STATUSES.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <section className="rounded-xl border border-border p-5">
+            <h2 className="mb-4 text-sm font-medium text-muted-foreground">Status</h2>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <Label className="mb-1.5 block text-xs">Reading status</Label>
+                <Select value={book.readingStatus} onValueChange={(v) => save({ readingStatus: v as ReadingStatus })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {ALL_READING_STATUSES.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="mb-1.5 block text-xs">Borrowing status</Label>
+                <Select
+                  value={book.borrowing.borrowingStatus}
+                  onValueChange={(v) => save({ borrowing: { ...book.borrowing, borrowingStatus: v as BorrowingStatus } })}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {ALL_BORROWING_STATUSES.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {book.borrowing.borrowingStatus === BorrowingStatus.BORROWED && (
+              <div className="mt-4 grid grid-cols-2 gap-6 border-t border-border pt-4">
+                <div>
+                  <Label className="mb-1.5 block text-xs">Borrower name</Label>
+                  <Input
+                    placeholder="Borrower name"
+                    defaultValue={book.borrowing.name}
+                    onBlur={(e) => save({ borrowing: { ...book.borrowing, name: e.target.value } })}
+                  />
+                </div>
+                <div>
+                  <Label className="mb-1.5 block text-xs">Borrowed on</Label>
+                  <Input
+                    type="date"
+                    defaultValue={book.borrowing.date}
+                    onBlur={(e) => save({ borrowing: { ...book.borrowing, date: e.target.value } })}
+                  />
+                </div>
+              </div>
+            )}
+          </section>
 
-          <div>
-            <Label className="mb-2 block">Ratings</Label>
-            <div className="flex flex-col gap-2 rounded-lg border border-border p-4">
+          <section className="rounded-xl border border-border p-5">
+            <h2 className="mb-4 text-sm font-medium text-muted-foreground">Ratings</h2>
+            <div className="flex flex-col gap-3">
               {RATING_LABELS.map(({ key, label }) => (
                 <div key={key} className="flex items-center justify-between gap-4">
-                  <span className="text-sm text-muted-foreground">{label}</span>
+                  <span className="text-sm">{label}</span>
                   <StarRating
                     value={book.rating[key]}
                     onChange={(value) => save({ rating: { ...book.rating, [key]: value } })}
@@ -118,42 +163,13 @@ export default function BookDetailsPage() {
                 </div>
               ))}
             </div>
-          </div>
+          </section>
 
-          <div>
-            <Label>Borrowing status</Label>
-            <Select
-              value={book.borrowing.borrowingStatus}
-              onValueChange={(v) => save({ borrowing: { ...book.borrowing, borrowingStatus: v as BorrowingStatus } })}
-            >
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {ALL_BORROWING_STATUSES.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {book.borrowing.borrowingStatus === BorrowingStatus.BORROWED && (
-              <div className="mt-2 flex gap-2">
-                <Input
-                  placeholder="Borrower name"
-                  defaultValue={book.borrowing.name}
-                  onBlur={(e) => save({ borrowing: { ...book.borrowing, name: e.target.value } })}
-                />
-                <Input
-                  type="date"
-                  defaultValue={book.borrowing.date}
-                  onBlur={(e) => save({ borrowing: { ...book.borrowing, date: e.target.value } })}
-                />
-              </div>
-            )}
-          </div>
-
-          <div>
+          <div className="flex items-center gap-3 border-t border-border pt-6">
             <Button variant="destructive" onClick={handleDelete}>
               Delete book
             </Button>
-            {saving && <p className="mt-2 text-xs text-muted-foreground">Saving…</p>}
+            {saving && <p className="text-xs text-muted-foreground">Saving…</p>}
           </div>
         </div>
       </div>
