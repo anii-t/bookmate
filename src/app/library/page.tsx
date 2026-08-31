@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import AuthGuard from '@/components/AuthGuard';
 import BookCard from '@/components/BookCard';
@@ -7,6 +8,8 @@ import { useBookStore } from '@/lib/store/bookStore';
 import { ListType } from '@/lib/models/enums';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { fetchRankedRecommendations } from '@/lib/utils/recommendationEngine';
+import { BookModel } from '@/lib/models/BookModel';
 
 function BookList({ books }: { books: ReturnType<typeof useBookStore.getState>['books'] }) {
   if (books.length === 0) {
@@ -28,6 +31,18 @@ export default function LibraryPage() {
   const loading = useBookStore((s) => s.loading);
   const library = books.filter((b) => b.listType === ListType.LIBRARY);
   const wishlist = books.filter((b) => b.listType === ListType.WISHLIST);
+
+  const [recommendations, setRecommendations] = useState<BookModel[]>([]);
+  const [loadingRecs, setLoadingRecs] = useState(false);
+
+  useEffect(() => {
+    if (library.length === 0) return;
+    setLoadingRecs(true);
+    fetchRankedRecommendations(library)
+      .then(setRecommendations)
+      .finally(() => setLoadingRecs(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [library.length]);
 
   return (
     <AuthGuard>
@@ -53,7 +68,17 @@ export default function LibraryPage() {
             <BookList books={wishlist} />
           </TabsContent>
           <TabsContent value="recommendations">
-            <p className="p-6 text-center text-muted-foreground">Coming in a later task.</p>
+            {loadingRecs && <p className="p-4 text-sm text-muted-foreground">Finding recommendations…</p>}
+            {!loadingRecs && recommendations.length === 0 && (
+              <p className="p-6 text-center text-muted-foreground">
+                Add a few books to your library to get recommendations.
+              </p>
+            )}
+            <div className="flex flex-col gap-2 p-4">
+              {recommendations.map((book, i) => (
+                <BookCard key={`${book.title}-${i}`} book={book} />
+              ))}
+            </div>
           </TabsContent>
           <TabsContent value="analytics">
             <p className="p-6 text-center text-muted-foreground">Coming in a later task.</p>
