@@ -58,13 +58,17 @@ export default function LibraryPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [library.length]);
 
-  async function handleAddRecommendation(book: BookModel) {
+  async function handleAddRecommendation(book: BookModel, listType: ListType) {
     if (!user) return;
-    const toAdd = { ...book, ownerId: user.id };
+    const toAdd = { ...book, ownerId: user.id, listType };
     try {
       await addBook(toAdd);
       addBookLocal(toAdd);
       setRecommendations((prev) => prev.filter((b) => b !== book));
+      toast.add({
+        title: listType === ListType.WISHLIST ? 'Added to wishlist' : 'Added to library',
+        type: 'success',
+      });
     } catch (e) {
       console.error('Failed to add recommended book', e);
       toast.add({
@@ -116,16 +120,29 @@ export default function LibraryPage() {
                 book={book}
                 layout="grid"
                 action={
-                  <Button
-                    size="sm"
-                    className="w-full bg-brand hover:bg-brand/90"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddRecommendation(book);
-                    }}
-                  >
-                    + Add
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      className="flex-1 bg-brand hover:bg-brand/90"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddRecommendation(book, ListType.LIBRARY);
+                      }}
+                    >
+                      + Library
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddRecommendation(book, ListType.WISHLIST);
+                      }}
+                    >
+                      + Wishlist
+                    </Button>
+                  </div>
                 }
               />
             ))}
