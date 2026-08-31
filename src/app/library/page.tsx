@@ -51,9 +51,14 @@ export default function LibraryPage() {
       <div className="mx-auto max-w-2xl">
         <header className="flex items-center justify-between p-4">
           <h1 className="text-xl font-bold text-brand">BookMate</h1>
-          <Link href="/add">
-            <Button className="bg-brand hover:bg-brand/90">+ Add book</Button>
-          </Link>
+          <div className="flex gap-2">
+            <Link href="/add">
+              <Button className="bg-brand hover:bg-brand/90">+ Add book</Button>
+            </Link>
+            <Link href="/settings">
+              <Button variant="ghost">Settings</Button>
+            </Link>
+          </div>
         </header>
         {loading && <p className="px-4 text-sm text-muted-foreground">Loading books…</p>}
         <Tabs defaultValue="library">
