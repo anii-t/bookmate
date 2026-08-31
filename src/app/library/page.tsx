@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { fetchRankedRecommendations } from '@/lib/utils/recommendationEngine';
 import { BookModel } from '@/lib/models/BookModel';
+import StatBarList from '@/components/StatBarList';
+import { aggregateGenres, aggregateReadingStatus, aggregateAuthors } from '@/lib/utils/libraryAnalytics';
 
 function BookList({ books }: { books: ReturnType<typeof useBookStore.getState>['books'] }) {
   if (books.length === 0) {
@@ -81,7 +83,11 @@ export default function LibraryPage() {
             </div>
           </TabsContent>
           <TabsContent value="analytics">
-            <p className="p-6 text-center text-muted-foreground">Coming in a later task.</p>
+            <div className="flex flex-col gap-6 p-4">
+              <StatBarList title="Reading status" entries={aggregateReadingStatus(library)} />
+              <StatBarList title="Top genres" entries={aggregateGenres(library)} />
+              <StatBarList title="Top authors" entries={aggregateAuthors(library)} />
+            </div>
           </TabsContent>
         </Tabs>
       </div>
