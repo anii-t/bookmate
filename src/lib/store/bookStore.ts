@@ -26,6 +26,9 @@ export const useBookStore = create<BookState>((set, get) => ({
     }
   },
   addBookLocal: (book) => set({ books: [...get().books, book] }),
+  // NOTE: booksEqual (and therefore update/remove below) matches by title
+  // only. Duplicate titles are a known, accepted limitation inherited from
+  // the mobile app's spec-mandated identity semantics.
   updateBookLocal: (book) =>
     set({
       books: get().books.map((b) => (booksEqual(b, book) ? book : b)),

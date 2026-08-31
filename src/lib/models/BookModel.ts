@@ -31,6 +31,11 @@ export function createDefaultBook(ownerId: string = ''): BookModel {
   };
 }
 
+// NOTE (known, accepted limitation): identity is title-only (case-insensitive),
+// ported verbatim from the mobile app's spec-mandated behavior. Two distinct
+// books that happen to share a title will collide here (and in routing that
+// keys off title). Do not silently "fix" by changing semantics — see review
+// finding for details.
 export function booksEqual(a: BookModel, b: BookModel): boolean {
   return a.title.toLowerCase() === b.title.toLowerCase();
 }
