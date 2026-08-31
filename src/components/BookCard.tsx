@@ -39,6 +39,11 @@ export default function BookCard({
             <p className="line-clamp-1 text-sm text-muted-foreground">
               {book.author || 'Unknown author'}
             </p>
+            {book.genres.length > 0 && (
+              <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
+                {book.genres.join(' · ')}
+              </p>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-1">
             <Badge variant="secondary">{book.readingStatus}</Badge>
@@ -73,6 +78,9 @@ export default function BookCard({
         <div>
           <p className="font-semibold leading-tight">{book.title || 'Untitled'}</p>
           <p className="text-sm text-muted-foreground">{book.author || 'Unknown author'}</p>
+          {book.genres.length > 0 && (
+            <p className="mt-1 text-xs text-muted-foreground">{book.genres.join(' · ')}</p>
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-1">
           <Badge variant="secondary">{book.readingStatus}</Badge>

@@ -6,6 +6,7 @@ import { useBookStore } from '@/lib/store/bookStore';
 import { updateBook, deleteBook } from '@/lib/firebase/firestore';
 import { ALL_READING_STATUSES, ALL_BORROWING_STATUSES, BorrowingStatus, ReadingStatus } from '@/lib/models/enums';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -93,6 +94,15 @@ export default function BookDetailsPage() {
             <h1 className="text-3xl font-bold">{book.title}</h1>
             <p className="mt-1 text-lg text-muted-foreground">{book.author}</p>
             <p className="mt-1 text-xs text-muted-foreground">ISBN: {book.ISBN || '—'}</p>
+            {book.genres.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {book.genres.map((genre) => (
+                  <Badge key={genre} variant="secondary">
+                    {genre}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
 
           <section className="rounded-xl border border-border p-5">
