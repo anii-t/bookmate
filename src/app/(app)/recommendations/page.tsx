@@ -10,6 +10,7 @@ import { addBook } from '@/lib/firebase/firestore';
 import { toast } from '@/components/ui/toast';
 import BookCard from '@/components/BookCard';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 export default function RecommendationsPage() {
   const books = useBookStore((s) => s.books);
@@ -64,7 +65,11 @@ export default function RecommendationsPage() {
         <h1 className="text-2xl font-bold">Recommendations</h1>
         <p className="text-sm text-muted-foreground">Based on your library</p>
       </div>
-      {loadingRecs && <p className="text-sm text-muted-foreground">Finding recommendations…</p>}
+      {loadingRecs && (
+        <div className="flex justify-center py-16">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      )}
       {!loadingRecs && recommendations.length === 0 && (
         <p className="py-16 text-center text-muted-foreground">
           Add a few books to your library to get recommendations.
