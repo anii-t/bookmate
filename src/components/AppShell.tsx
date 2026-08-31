@@ -49,7 +49,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="flex w-60 shrink-0 flex-col border-r border-border bg-muted/30 p-4">
+      <aside className="sticky top-0 flex h-screen w-60 shrink-0 flex-col border-r border-border bg-muted/30 p-4">
         <div className="mb-8 px-2 text-xl font-bold text-brand">BookMate</div>
         <nav className="flex flex-1 flex-col gap-1">
           {NAV_ITEMS.map((item) => (
