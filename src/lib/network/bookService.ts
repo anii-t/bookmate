@@ -29,16 +29,21 @@ export interface BookResponse {
   docs: DocumentResponse[];
 }
 
+// Open Library's search.json only returns a fixed default set of fields —
+// `subject` (used for genre extraction) is NOT included unless requested
+// explicitly. `*` requests all default fields plus the extra ones listed.
+const SEARCH_FIELDS = '*,subject';
+
 export async function searchByISBN(isbn: string): Promise<BookResponse> {
   const response = await client.get<BookResponse>('/search.json', {
-    params: { isbn },
+    params: { isbn, fields: SEARCH_FIELDS },
   });
   return response.data;
 }
 
 export async function searchByTitle(title: string): Promise<BookResponse> {
   const response = await client.get<BookResponse>('/search.json', {
-    params: { title },
+    params: { title, fields: SEARCH_FIELDS },
   });
   return response.data;
 }
@@ -61,6 +66,7 @@ export async function searchOpenLibrary(
   const apiParams: Record<string, string | number> = {
     sort,
     limit: Math.min(Math.max(1, limit), 100),
+    fields: SEARCH_FIELDS,
   };
   if (language) apiParams.language = language;
   if (q) apiParams.q = q;
