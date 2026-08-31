@@ -52,11 +52,11 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-lg flex-col gap-4 p-4">
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 p-6">
       <Button variant="ghost" className="w-fit" onClick={() => router.back()}>
         ← Back
       </Button>
-      <h1 className="text-xl font-bold text-brand">Settings</h1>
+      <h1 className="text-2xl font-bold text-brand">Settings</h1>
       {user && (
         <div className="rounded border p-3 text-sm">
           <p className="font-medium">{user.name}</p>

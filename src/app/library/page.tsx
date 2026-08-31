@@ -20,10 +20,10 @@ function BookList({ books }: { books: ReturnType<typeof useBookStore.getState>['
     return <p className="p-6 text-center text-muted-foreground">No books yet.</p>;
   }
   return (
-    <div className="flex flex-col gap-2 p-4">
+    <div className="grid grid-cols-2 gap-4 p-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
       {books.map((book, i) => (
         <Link key={`${book.ISBN}-${book.title}-${i}`} href={`/books/${encodeURIComponent(book.title)}`}>
-          <BookCard book={book} />
+          <BookCard book={book} layout="grid" />
         </Link>
       ))}
     </div>
@@ -76,9 +76,9 @@ export default function LibraryPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <header className="flex items-center justify-between p-4">
-        <h1 className="text-xl font-bold text-brand">BookMate</h1>
+    <div className="mx-auto max-w-7xl">
+      <header className="flex items-center justify-between px-6 py-4">
+        <h1 className="text-2xl font-bold text-brand">BookMate</h1>
         <div className="flex gap-2">
           <Link href="/add">
             <Button className="bg-brand hover:bg-brand/90">+ Add book</Button>
@@ -88,9 +88,9 @@ export default function LibraryPage() {
           </Link>
         </div>
       </header>
-      {loading && <p className="px-4 text-sm text-muted-foreground">Loading books…</p>}
+      {loading && <p className="px-6 text-sm text-muted-foreground">Loading books…</p>}
       <Tabs defaultValue="library">
-        <TabsList className="mx-4">
+        <TabsList className="mx-6">
           <TabsTrigger value="library">Library</TabsTrigger>
           <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
           <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
@@ -103,21 +103,22 @@ export default function LibraryPage() {
           <BookList books={wishlist} />
         </TabsContent>
         <TabsContent value="recommendations">
-          {loadingRecs && <p className="p-4 text-sm text-muted-foreground">Finding recommendations…</p>}
+          {loadingRecs && <p className="p-6 text-sm text-muted-foreground">Finding recommendations…</p>}
           {!loadingRecs && recommendations.length === 0 && (
             <p className="p-6 text-center text-muted-foreground">
               Add a few books to your library to get recommendations.
             </p>
           )}
-          <div className="flex flex-col gap-2 p-4">
+          <div className="grid grid-cols-2 gap-4 p-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {recommendations.map((book, i) => (
               <BookCard
                 key={`${book.title}-${i}`}
                 book={book}
+                layout="grid"
                 action={
                   <Button
                     size="sm"
-                    className="shrink-0 bg-brand hover:bg-brand/90"
+                    className="w-full bg-brand hover:bg-brand/90"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleAddRecommendation(book);
@@ -131,7 +132,7 @@ export default function LibraryPage() {
           </div>
         </TabsContent>
         <TabsContent value="analytics">
-          <div className="flex flex-col gap-6 p-4">
+          <div className="grid grid-cols-1 gap-8 p-6 lg:grid-cols-3">
             <StatBarList title="Reading status" entries={aggregateReadingStatus(library)} />
             <StatBarList title="Top genres" entries={aggregateGenres(library)} />
             <StatBarList title="Top authors" entries={aggregateAuthors(library)} />

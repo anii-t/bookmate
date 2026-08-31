@@ -89,11 +89,11 @@ export default function AddBookPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-lg flex-col gap-4 p-4">
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 p-6">
       <Button variant="ghost" className="w-fit" onClick={() => router.back()}>
         ← Back
       </Button>
-      <h1 className="text-xl font-bold text-brand">Add a book</h1>
+      <h1 className="text-2xl font-bold text-brand">Add a book</h1>
       <div className="flex gap-2">
         <Input
           placeholder="ISBN or title"
