@@ -10,7 +10,7 @@ import { addBook } from '@/lib/firebase/firestore';
 import { toast } from '@/components/ui/toast';
 import BookCard from '@/components/BookCard';
 import { Button } from '@/components/ui/button';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export default function RecommendationsPage() {
   const books = useBookStore((s) => s.books);
@@ -71,20 +71,9 @@ export default function RecommendationsPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Recommendations</h1>
-          <p className="text-sm text-muted-foreground">Based on your library</p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={loadingRecs || library.length === 0}
-          onClick={loadRecommendations}
-        >
-          <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
-          Refresh
-        </Button>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">Recommendations</h1>
+        <p className="text-sm text-muted-foreground">Based on your library</p>
       </div>
       {loadingRecs && (
         <div className="flex justify-center py-16">
