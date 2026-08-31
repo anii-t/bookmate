@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useBookStore } from '@/lib/store/bookStore';
 import { useUserStore } from '@/lib/store/userStore';
 import { ListType } from '@/lib/models/enums';
@@ -10,7 +10,7 @@ import { addBook } from '@/lib/firebase/firestore';
 import { toast } from '@/components/ui/toast';
 import BookCard from '@/components/BookCard';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, RefreshCw } from 'lucide-react';
 
 export default function RecommendationsPage() {
   const books = useBookStore((s) => s.books);
@@ -20,10 +20,14 @@ export default function RecommendationsPage() {
 
   const [recommendations, setRecommendations] = useState<BookModel[]>([]);
   const [loadingRecs, setLoadingRecs] = useState(false);
+  // Guards against re-fetching (and wiping the list) every time library.length
+  // changes because the user added/removed a book from this very page — we
+  // only want the automatic fetch to run once per visit, when the library
+  // first has books to build a taste profile from.
+  const hasFetchedRef = useRef(false);
 
-  useEffect(() => {
+  function loadRecommendations() {
     let ignore = false;
-    if (library.length === 0) return;
     setLoadingRecs(true);
     fetchRankedRecommendations(library)
       .then((recs) => {
@@ -35,6 +39,12 @@ export default function RecommendationsPage() {
     return () => {
       ignore = true;
     };
+  }
+
+  useEffect(() => {
+    if (hasFetchedRef.current || library.length === 0) return;
+    hasFetchedRef.current = true;
+    return loadRecommendations();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [library.length]);
 
@@ -61,9 +71,20 @@ export default function RecommendationsPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Recommendations</h1>
-        <p className="text-sm text-muted-foreground">Based on your library</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Recommendations</h1>
+          <p className="text-sm text-muted-foreground">Based on your library</p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={loadingRecs || library.length === 0}
+          onClick={loadRecommendations}
+        >
+          <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+          Refresh
+        </Button>
       </div>
       {loadingRecs && (
         <div className="flex justify-center py-16">
