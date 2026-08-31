@@ -12,6 +12,7 @@ import { useUserStore } from '@/lib/store/userStore';
 import { useBookStore } from '@/lib/store/bookStore';
 import { addBook } from '@/lib/firebase/firestore';
 import BookCard from '@/components/BookCard';
+import BarcodeScanner from '@/components/BarcodeScanner';
 import { BookModel } from '@/lib/models/BookModel';
 
 export default function AddBookPage() {
@@ -22,6 +23,7 @@ export default function AddBookPage() {
   const [result, setResult] = useState<BookModel | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [searching, setSearching] = useState(false);
+  const [scanning, setScanning] = useState(false);
 
   async function handleSearch() {
     if (!user) return;
@@ -42,6 +44,28 @@ export default function AddBookPage() {
       }
     } catch (e) {
       console.error('Search failed', e);
+      setError('Search failed. Please check your connection and try again.');
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  async function handleScanned(isbn: string) {
+    setScanning(false);
+    setQuery(isbn);
+    if (!user) return;
+    setError(null);
+    setResult(null);
+    setSearching(true);
+    try {
+      const response = await searchByISBN(isbn);
+      const book = convertToBook(response, user);
+      if (!book) {
+        setError('No results found for the scanned barcode. Try manual search.');
+      } else {
+        setResult(book);
+      }
+    } catch {
       setError('Search failed. Please check your connection and try again.');
     } finally {
       setSearching(false);
@@ -73,6 +97,18 @@ export default function AddBookPage() {
             {searching ? 'Searching…' : 'Search'}
           </Button>
         </div>
+        <Button variant="outline" onClick={() => setScanning((s) => !s)}>
+          {scanning ? 'Cancel scan' : 'Scan barcode'}
+        </Button>
+        {scanning && (
+          <BarcodeScanner
+            onDetected={handleScanned}
+            onError={(msg) => {
+              setScanning(false);
+              setError(msg);
+            }}
+          />
+        )}
         {error && <p className="text-sm text-destructive">{error}</p>}
         {result && (
           <div className="flex flex-col gap-2">
